@@ -19,6 +19,7 @@ router.post('/sign-up', (req, res, next) => {
         return;
     }
 
+    /*
     const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
     if (!regex.test(password)) {
       res
@@ -26,6 +27,7 @@ router.post('/sign-up', (req, res, next) => {
         .render('auth/signup', { errorMessage: 'Password needs to have at least 6 chars and must contain at least one number, one lowercase and one uppercase letter.' });
       return;
     }
+    */
 
     bcrypt
      .genSalt(saltRounds)
@@ -45,8 +47,37 @@ router.post('/sign-up', (req, res, next) => {
              next(error);
          }
      })
-})
+});
 
-router.get('/login', (req, res) => res.render('auth/login'))
+router.get('/login', (req, res) => res.render('auth/login'));
+
+router.post('/login', (req, res, next) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        res.render('auth/login', {
+          errorMessage: 'Please enter both, email and password to login.'
+        });
+        return;
+    }
+
+    User.findOne({ username })
+      .then(user => {
+          if(!user) {
+            res.render('auth/login', {
+                errorMessage: 'This username is not registered. Try with another username.'
+              });
+              return;
+          } else if ( bcrypt.compareSync(password, user.passwordHash)) {
+              res.render('users/profile', { user });
+          } else {
+            res.render('auth/login', { errorMessage: 'Incorrect password.' });
+          }
+      })
+      .catch(error => next(error));
+
+});
+
+router.get('/profile', (req, res) => res.render('users/profile'));
 
 module.exports = router;
