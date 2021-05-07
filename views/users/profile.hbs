@@ -1,10 +1,10 @@
 <div class="container">
 {{#if userInSession}}
-  <h2>Welcome, {{ userInSession.userusername }}!</h2>
+  <h2>Welcome, {{ userInSession.name }}!</h2>
   <p>This is your profile page my friend!</p>
-  <button>
-    <a href="/profile">Reload the page</a>
-  </button>
+  <form id="profile" action="/profile" method="GET">
+      <button>Refresh the page</button>
+  </form>
 {{else}}
   <p>Still no logged in user, sorry!</p>
 {{/if}}
