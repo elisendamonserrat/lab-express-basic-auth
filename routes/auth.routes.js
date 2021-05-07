@@ -1,25 +1,28 @@
-const { Router } = require('express');
-const bcrypt = require('bcryptjs');
-const User = require('../models/User.model');
-const mongoose = require('mongoose');
+const { Router } = require("express");
+const bcrypt = require("bcryptjs");
+const User = require("../models/User.model");
+const mongoose = require("mongoose");
 
 const router = new Router();
 
 const saltRounds = 10;
 
-router.get('/sign-up', (req, res) => {
-    res.render('auth/signup')
+router.get("/sign-up", (req, res) => {
+  res.render("auth/signup");
 });
 
-router.post('/sign-up', (req, res, next) => {
-    const { username, password } = req.body;
+router.post("/sign-up", (req, res, next) => {
+  const { username, password } = req.body;
 
-    if ( !username || !password ) {
-        res.render('auth/signup', { errorMessage: 'All fields are mandatory. Please provide a username and a password.'})
-        return;
-    }
+  if (!username || !password) {
+    res.render("auth/signup", {
+      errorMessage:
+        "All fields are mandatory. Please provide a username and a password.",
+    });
+    return;
+  }
 
-    /*
+  /*
     const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
     if (!regex.test(password)) {
       res
@@ -29,55 +32,60 @@ router.post('/sign-up', (req, res, next) => {
     }
     */
 
-    bcrypt
-     .genSalt(saltRounds)
-     .then(salt => bcrypt.hash(password, salt))
-     .then((hashedPassword) => {
-         console.log(hashedPassword)
-        return User.create({
-             username,
-             passwordHash: hashedPassword
-         })
-     })
-     .then(() => res.redirect('/'))
-     .catch(error => {
-         if (error.code === 11000) {
-            res.status(500).render('auth/signup', { errorMessage: 'Username and email need to be unique. Either username or email is already used.'});
-         } else {
-             next(error);
-         }
-     })
+  bcrypt
+    .genSalt(saltRounds)
+    .then((salt) => bcrypt.hash(password, salt))
+    .then((hashedPassword) => {
+      console.log(hashedPassword);
+      return User.create({
+        username,
+        passwordHash: hashedPassword,
+      });
+    })
+    .then(() => res.redirect("/"))
+    .catch((error) => {
+      if (error.code === 11000) {
+        res
+          .status(500)
+          .render("auth/signup", {
+            errorMessage:
+              "Username and email need to be unique. Either username or email is already used.",
+          });
+      } else {
+        next(error);
+      }
+    });
 });
 
-router.get('/login', (req, res) => res.render('auth/login'));
+router.get("/login", (req, res) => res.render("auth/login"));
 
-router.post('/login', (req, res, next) => {
-    const { username, password } = req.body;
+router.post("/login", (req, res, next) => {
+  const { username, password } = req.body;
 
-    if (!username || !password) {
-        res.render('auth/login', {
-          errorMessage: 'Please enter both, email and password to login.'
+  if (!username || !password) {
+    res.render("auth/login", {
+      errorMessage: "Please enter both, email and password to login.",
+    });
+    return;
+  }
+
+  User.findOne({ username })
+    .then((user) => {
+      if (!user) {
+        res.render("auth/login", {
+          errorMessage:
+            "This username is not registered. Try with another username.",
         });
         return;
-    }
-
-    User.findOne({ username })
-      .then(user => {
-          if(!user) {
-            res.render('auth/login', {
-                errorMessage: 'This username is not registered. Try with another username.'
-              });
-              return;
-          } else if ( bcrypt.compareSync(password, user.passwordHash)) {
-              res.render('users/profile', { user });
-          } else {
-            res.render('auth/login', { errorMessage: 'Incorrect password.' });
-          }
-      })
-      .catch(error => next(error));
-
+      } else if (bcrypt.compareSync(password, user.passwordHash)) {
+        res.render("users/profile", { user });
+      } else {
+        res.render("auth/login", { errorMessage: "Incorrect password." });
+      }
+    })
+    .catch((error) => next(error));
 });
 
-router.get('/profile', (req, res) => res.render('users/profile'));
+router.get("/profile", (req, res) => res.render("users/profile"));
 
 module.exports = router;
