@@ -30,6 +30,22 @@ app.set('view engine', 'hbs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
+app.use(
+    session({
+      store: MongoStore.create({
+        mongoUrl: 'mongodb://localhost:27017/express-basic-auth-dev',
+        // mongooseConnection: mongoose.connection,
+        ttl: 24 * 60 * 60,
+      }),
+      secret: 'Ironhack', // should be inside .env
+      resave: true,
+      saveUninitialized: true,
+      cookie: {
+        maxAge: 24 * 60 * 60 * 1000,
+      },
+    }),
+  );
+
 // default value for title local
 app.locals.title = 'Express - Generated with IronGenerator';
 
