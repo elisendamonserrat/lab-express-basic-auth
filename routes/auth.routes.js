@@ -1,17 +1,31 @@
 const { Router } = require('express');
 const bcrypt = require('bcryptjs');
-const User = require('../models/User.model')
+const User = require('../models/User.model');
+const mongoose = require('mongoose');
 
 const router = new Router();
 
 const saltRounds = 10;
 
 router.get('/sign-up', (req, res) => {
-    res.render('auth/singup')
+    res.render('auth/signup')
 });
 
 router.post('/sign-up', (req, res, next) => {
     const { username, password } = req.body;
+
+    if ( !username || !password ) {
+        res.render('auth/signup', { errorMessage: 'All fields are mandatory. Please provide a username and a password.'})
+        return;
+    }
+
+    const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+    if (!regex.test(password)) {
+      res
+        .status(500)
+        .render('auth/signup', { errorMessage: 'Password needs to have at least 6 chars and must contain at least one number, one lowercase and one uppercase letter.' });
+      return;
+    }
 
     bcrypt
      .genSalt(saltRounds)
@@ -24,9 +38,13 @@ router.post('/sign-up', (req, res, next) => {
          })
      })
      .then(() => res.redirect('/'))
-     .catch(error => next(error))
+     .catch(error => {
+         if (error.code === 11000) {
+            res.status(500).render('auth/signup', { errorMessage: 'Username and email need to be unique. Either username or email is already used.'});
+         } else {
+             next(error);
+         }
+     })
 })
-
-
 
 module.exports = router;

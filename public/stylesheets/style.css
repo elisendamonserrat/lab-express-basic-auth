@@ -6,3 +6,48 @@ body {
 a {
   color: #00B7FF;
 }
+
+.container {
+  width: 90%;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.signup {
+  background-color: rgb(235, 235, 235);
+  padding: 2em 0;
+}
+
+form input {
+  display: inline-block;
+  width: 90%;
+  margin: 0.5em auto;
+  padding: 0.75em 0.5em;
+  background-color: white;
+  border: none;
+}
+
+button {
+  margin: 0.2em;
+  padding: 1em 2em;
+  background-color: lightseagreen;
+  border: none;
+  box-shadow: lightslategray  2px 2px 2px;
+  font-weight: 600;
+  color: white;
+}
+
+button:hover,
+button:focus {
+  box-shadow: lightslategray  5px 10px 9px;
+
+}
+
+.error {
+  background-color: red;
+  color: white;
+  width: 90%;
+  margin: 1em auto;
+  padding: 0.75em 0.5em;
+}
